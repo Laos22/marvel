@@ -3,6 +3,7 @@
 .randomchar {
     display: grid;
     grid-template-columns: repeat(2, 50%);
+    align-items: center;
     box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.25);
     &__block {
         padding: 40px 35px;
@@ -29,7 +30,11 @@
     }
     &__descr {
         font-size: 14px;
-        line-height: 18px;
+        line-height: 18px; 
+        overflow: hidden;   
+        line-clamp: 5;   /* Укажите количество строк */
+        text-overflow: ellipsis;  
+       
     }
     &__btns {
         a:nth-child(1) {
