@@ -60,9 +60,6 @@ class CharInfo extends Component {
             .catch(this.onError);
     }
 
-
-
-
     render() {
         const {char, error, loading} = this.state;
 
@@ -109,16 +106,7 @@ const View = ({char}) => {
             <div className="char__comics">Comics:</div>
             <ul className="char__comics-list">
                 {
-                   comics.map((item, i) => {
-
-                    if (i < 9) {
-                        return (
-                            <li key={i} className="char__comics-item">
-                                {item.name}
-                            </li>
-                        )
-                    }
-                   })
+                   comics.map((item, i) => i<9 ? <li key={i} className="char__comics-item">{item.name}</li> : null)
                 }
                 
             </ul>
