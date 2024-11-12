@@ -8,4 +8,4 @@ const ErrorMessage = () =>  {
     
 }
 
-export def
+export default ErrorMessage;
