@@ -83,11 +83,15 @@ class CharInfo extends Component {
 const View = ({char}) => {
 
     const {name, thumbnail, description, homepage, wiki, comics} = char;
+    let style = {objectFit: 'cover'};
+    if (thumbnail === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg") {
+        style = {objectFit: 'unset'}
+    }
 
     return(
         <>
             <div className="char__basics">
-                <img src={thumbnail} alt="abyss"/>
+                <img src={thumbnail} alt="abyss" style={style}/>
                 <div>
                     <div className="char__info-name">{name}</div>
                     <div className="char__btns">
@@ -105,10 +109,18 @@ const View = ({char}) => {
             </div>
             <div className="char__comics">Comics:</div>
             <ul className="char__comics-list">
+                {comics.length > 0 ? null: "Not comics"}
                 {
-                   comics.map((item, i) => i<9 ? <li key={i} className="char__comics-item">{item.name}</li> : null)
+                    comics.map((item, i) => {
+                        // eslint-disable-next-line
+                        if (i > 9) return;
+                        return (
+                            <li key={i} className="char__comics-item">
+                                {item.name}
+                            </li>
+                        )
+                    })
                 }
-                
             </ul>
         </>
     )
