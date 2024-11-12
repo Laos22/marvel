@@ -11,16 +11,9 @@ class CharInfo extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            char: {
-                name: null,
-                description: null,
-                thumbnail: null,
-                homepage: null,
-                wiki: null,
-            },
+            char: null,
             loading: false,
             error: false,
-            currentChar: this.props.charId
         }
     }
 
@@ -47,17 +40,19 @@ class CharInfo extends Component {
     }
 
     onError = () => {
-        // console.log("error")
         this.setState({error: true, loading: false})
     }
 
     onLoading =() => {
-        // console.log("spinner")
-        this.setState({loading: true, error: false})
+        this.setState({loading: true})
     }
 
     updateChar = () => {
         const id = this.props.charId;
+
+        if (!id) {
+            return;
+        }
         this.onLoading();
         this.marvelServices
             .getCaracter(id)
@@ -66,10 +61,12 @@ class CharInfo extends Component {
     }
 
 
+
+
     render() {
         const {char, error, loading} = this.state;
 
-        const sceleton = this.props.charId ? null : <Sceleton/>;
+        const sceleton = char || loading || error ? null : <Sceleton/>;
         const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
         const content = !(loading || error || sceleton) ? <View char={char}/>: null;
@@ -87,8 +84,8 @@ class CharInfo extends Component {
 }
 
 const View = ({char}) => {
-    const {name, thumbnail, description, homepage, wiki} = char;
 
+    const {name, thumbnail, description, homepage, wiki, comics} = char;
 
     return(
         <>
@@ -111,9 +108,19 @@ const View = ({char}) => {
             </div>
             <div className="char__comics">Comics:</div>
             <ul className="char__comics-list">
-                <li className="char__comics-item">
-                    All-Winners Squad: Band of Heroes (2011) #3
-                </li>
+                {
+                   comics.map((item, i) => {
+
+                    if (i < 9) {
+                        return (
+                            <li key={i} className="char__comics-item">
+                                {item.name}
+                            </li>
+                        )
+                    }
+                   })
+                }
+                
             </ul>
         </>
     )
