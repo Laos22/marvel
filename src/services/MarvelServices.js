@@ -30,7 +30,7 @@ class MarvelServices {
         const {name, description, thumbnail, urls, id} = char;
         return {
             name: name,
-                        description: char.description ? `${char.description.slice(0, 210)}...` : 'There is no description for this character',
+                        description: description ? `${description.slice(0, 210)}...` : 'There is no description for this character',
                         thumbnail: thumbnail.path + "." + thumbnail.extension,
                         homepage: urls[0].url,
                         wiki: urls[1].url,

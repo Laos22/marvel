@@ -8,31 +8,33 @@ import mjolnir from '../../resources/img/mjolnir.png';
 import Spinner from '../spinner/Spinner';
 
 
-
-
 class RandomChar extends Component {
 
-    state = {
-        char: {
-            name: null,
-            description: null,
-            thumbnail: null,
-            homepage: null,
-            wiki: null,
-        },
-        loading: true,
-        error: false,
+    constructor(props) {
+        super(props);
+        this.state = {
+            char: {
+                name: null,
+                description: null,
+                thumbnail: null,
+                homepage: null,
+                wiki: null,
+            },
+            loading: true,
+            error: false,
+        }
     }
+
+    
 
     componentDidMount() {
         this.updateChar();
-        // this.timerId = setInterval(this.updateChar, 15000)
+    }
 
+    componentDidUpdate() {
     }
 
     componentWillUnmount() {
-        
-        // clearInterval(this.timerId);
     }
 
 
@@ -40,7 +42,6 @@ class RandomChar extends Component {
 
     onCharLoaded = (char) => {
         this.setState({char, loading: false});
-
     }
 
     onError = () => {
@@ -52,7 +53,6 @@ class RandomChar extends Component {
     }
 
     updateChar = () => {
-        // console.log("update")
         const id = Math.floor(Math.random() * (1011440 - 1011000) + 1011000);
         this.onLoading();
         this.marvelServices
@@ -99,7 +99,7 @@ const View = ({char}) => {
 
     let style = {objectFit: 'cover'};
     if (thumbnail === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg") {
-        style = {objectFit: 'contain'}
+        style = {objectFit: 'unset'}
     }
 
     return (
@@ -112,15 +112,4 @@ const View = ({char}) => {
                         </p>
                         <div className="randomchar__btns">
                             <a href={homepage} className="button button__main">
-                                <div className="inner">homepage</div>
-                            </a>
-                            <a href={wiki} className="button button__secondary">
-                                <div className="inner">Wiki</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-    )
-}
-
-export default RandomChar;
+        
