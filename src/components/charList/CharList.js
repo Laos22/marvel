@@ -1,7 +1,9 @@
 import {Component} from 'react';
+import PropTypes from 'prop-types';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import MarvelServices from '../../services/MarvelServices';
+
 import './charList.scss';
 
 class CharList extends Component {
@@ -12,12 +14,30 @@ class CharList extends Component {
         error: false,
         loadingmore: false,
         offset: 210,
+        charEnded: false,
     }
     
     marvelService = new MarvelServices();
 
     componentDidMount() {
         this.onRequest();
+        window.addEventListener('scroll', this.handleScroll);
+        
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.handleScroll);
+    }
+
+    handleScroll = () => {
+        const { loadingmore } = this.state;
+
+        // Проверяем, достиг ли пользователь нижней границы экрана
+        if (loadingmore) return;
+
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            this.onRequest(this.state.offset);
+        }
     }
 
     onLoadMore = () => {
@@ -38,11 +58,18 @@ class CharList extends Component {
 
     onCharListLoaded = (newcharList) => {
         this.setState(({charList, offset}) => {
+
+            let ended = false;
+            if(newcharList.length < 9) {
+                ended = true;
+            }
+
             return {
                 charList: [...charList, ...newcharList],
                 loading: false,
                 loadingmore: false,
                 offset: offset + 9,
+                charEnded: ended,
             }
         })
     }
@@ -83,7 +110,7 @@ class CharList extends Component {
 
     render() {
 
-        const {charList, loading, error, loadingmore, offset} = this.state;
+        const {charList, loading, error, loadingmore, offset, charEnded} = this.state;
         
         const items = this.renderItems(charList);
 
@@ -99,6 +126,7 @@ class CharList extends Component {
                 <button 
                     className="button button__main button__long"
                     disabled={loadingmore}
+                    style={{"display": charEnded ? "none" : "block"}}
                     onClick={() => this.onRequest(offset)}>
                     <div className="inner">load more</div>
                 </button>
@@ -107,4 +135,7 @@ class CharList extends Component {
     }
 }
 
+CharList.propTypes = {
+    onCurrentChar: PropTypes.func.isRequired
+}
 export default CharList;
