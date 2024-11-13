@@ -27,22 +27,4 @@ class App extends Component {
                 <AppHeader/>
                 <main>
                     <ErrorBoundary>
-                        <RandomChar/>
-                    </ErrorBoundary>
-                    <div className="char__content">
-                        <ErrorBoundary>
-                            <CharList onCurrentChar={this.onCurrentChar}/>
-                        </ErrorBoundary>
-                        <ErrorBoundary>
-                            <CharInfo charId={this.state.currentChar}/>
-                        </ErrorBoundary>
-                    </div>
-                    <img className="bg-decoration" src={decoration} alt="vision"/>
-                </main>
-            </div>
-        )
-    }
-    
-}
-
-export default App;
+      
