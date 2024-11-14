@@ -84,6 +84,10 @@ class CharInfo extends Component {
 
 const View = ({char}) => {
 
+    const setRef = (ref) => {
+        ref.focus();
+    }
+
     const {name, thumbnail, description, homepage, wiki, comics} = char;
     let style = {objectFit: 'cover'};
     if (thumbnail === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg") {
@@ -97,7 +101,7 @@ const View = ({char}) => {
                 <div>
                     <div className="char__info-name">{name}</div>
                     <div className="char__btns">
-                        <a href={homepage} className="button button__main">
+                        <a href={homepage} className="button button__main" ref={setRef}>
                             <div className="inner">homepage</div>
                         </a>
                         <a href={wiki} className="button button__secondary">
