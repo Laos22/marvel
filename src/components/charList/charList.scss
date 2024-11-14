@@ -33,6 +33,17 @@
             transform: translateY(-8px);
         }
     }
+
+    &__item:focus {
+        transform: scale(1.1);
+    }
+
+    &__item:hover {
+        transform: scale(1.1);
+    }
+    
+
+
     &__name {
         font-weight: bold;
         font-size: 22px;

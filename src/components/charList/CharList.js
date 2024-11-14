@@ -92,9 +92,17 @@ class CharList extends Component {
             
             return (
                 <li 
+                    tabIndex={0} // Добавляем tabIndex
+                    
                     className="char__item"
                     key={item.id}
-                    onClick={() => this.props.onCurrentChar(item.id)}>
+                    onClick={() => this.props.onCurrentChar(item.id)}
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                            this.props.onCurrentChar(item.id);
+                        }
+                    }}
+                    >
                         <img src={item.thumbnail} alt={item.name} style={imgStyle}/>
                         <div className="char__name">{item.name}</div>
                 </li>
