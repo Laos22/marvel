@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import MarvelServices from '../../services/MarvelServices';
@@ -9,83 +9,66 @@ import Sceleton from '../skeleton/Skeleton'
 import './charInfo.scss';
 
 
-class CharInfo extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            char: null,
-            loading: false,
-            error: false,
-        }
+const  CharInfo = ({charId}) => {
+
+    const [char, setChar] = useState(null);
+    const [loading, setLoading] = useState(null);
+    const [error, setError] = useState(null);
+
+    // eslint-disable-next-line
+    useEffect(() => updateChar(), [charId])
+
+    const marvelServices = new MarvelServices();
+
+    const onCharLoaded = (char) => {
+        setChar(char);
+        setLoading(false);
     }
 
     
-
-    componentDidMount() {
-        // this.updateChar();
+    const onError = () => {
+        setError(true);
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.charId !== prevProps.charId) {
-            this.updateChar();
-        }
+    const onLoading =() => {
+        setLoading(true);
     }
 
-    componentWillUnmount() {
-    }
-
-
-    marvelServices = new MarvelServices();
-
-    onCharLoaded = (char) => {
-        this.setState({char, loading: false});
-    }
-
-    onError = () => {
-        this.setState({error: true, loading: false})
-    }
-
-    onLoading =() => {
-        this.setState({loading: true})
-    }
-
-    updateChar = () => {
-        const id = this.props.charId;
+    const updateChar = () => {
+        const id = charId;
 
         if (!id) {
             return;
         }
-        this.onLoading();
-        this.marvelServices
+        onLoading();
+        marvelServices
             .getCaracter(id)
-            .then(this.onCharLoaded)
-            .catch(this.onError);
+            .then(onCharLoaded)
+            .catch(onError);
     }
 
-    render() {
-        const {char, error, loading} = this.state;
 
-        const sceleton = char || loading || error ? null : <Sceleton/>;
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error || sceleton) ? <View char={char}/>: null;
+    const sceleton = char || loading || error ? null : <Sceleton/>;
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <Spinner/> : null;
+    const content = !(loading || error || sceleton) ? <View char={char}/>: null;
 
-        return (
-            <div className="char__info">
-                {sceleton}
-                {errorMessage}
-                {spinner}
-                {content}
-            </div>
-        )
-    }
+    return (
+        <div className="char__info">
+            {sceleton}
+            {errorMessage}
+            {spinner}
+            {content}
+        </div>
+    )
+    
 
 }
 
 const View = ({char}) => {
 
     const setRef = (ref) => {
-        ref.focus();
+        if (ref) ref.focus();
     }
 
     const {name, thumbnail, description, homepage, wiki, comics} = char;
@@ -121,7 +104,7 @@ const View = ({char}) => {
                         // eslint-disable-next-line
                         if (i > 9) return;
                         return (
-                            <li key={i} className="char__comics-item">
+                            <li key={i} className="char__comics-item" tabIndex={0}>
                                 {item.name}
                             </li>
                         )
