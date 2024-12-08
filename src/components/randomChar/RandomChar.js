@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import MarvelServices from '../../services/MarvelServices';
+import useMarvelServices from '../../services/MarvelServices';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
 import './randomChar.scss';
@@ -15,35 +15,19 @@ const RandomChar = () => {
         homepage: null,
         wiki: null,
     });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+
+    const {loading, error, getCaracter} = useMarvelServices();
 
     //eslint-disable-next-line
     useEffect(() => updateChar(), [])
-    const marvelServices = new MarvelServices();
 
     const onCharLoaded = (char) => {
         setChar(char);
-        setLoading(false);
-    }
-
-    const onError = () => {
-        setError(true);
-        setLoading(false);
-    }
-
-    const onLoading =() => {
-        setLoading(true);
-        setError(false);
     }
 
     const updateChar = () => {
         const id = Math.floor(Math.random() * (1011440 - 1011000) + 1011000);
-        onLoading();
-        marvelServices
-            .getCaracter(id)
-            .then(onCharLoaded)
-            .catch(onError);
+        getCaracter(id).then(onCharLoaded);
     }
 
     const errorMessage = error ? <ErrorMessage/> : null;
