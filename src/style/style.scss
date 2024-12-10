@@ -83,6 +83,6 @@ main {
 
 .app *:focus {
     transform: scale(1.2);
-    outline: 2px dashed #007bff; // Задаем цвет и толщину outline
-    outline-offset: 2px; // Отступ для улучшения визуального эффекта
+    // outline: 2px dashed #007bff;
+    // outline-offset: 2px; 
 }

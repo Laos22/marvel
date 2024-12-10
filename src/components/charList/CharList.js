@@ -1,90 +1,52 @@
-import {Component} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
+
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import MarvelServices from '../../services/MarvelServices';
-
+import useMarvelServices from '../../services/MarvelServices';
 import './charList.scss';
 
-class CharList extends Component {
+const CharList = (props) => {
 
-    state = {
-        charList: [],
-        loading: true,
-        error: false,
-        loadingmore: false,
-        offset: 210,
-        charEnded: false,
+    const [charList, setCharList] = useState([]);
+    const [newItemLoading, setNewItemLoading] = useState(false);
+    const [offset, setOffset] = useState(210);
+    const [charEnded, setCharEnded] = useState(false);
+    
+    const {loading, error, getAllCharacters} = useMarvelServices();
+
+    useEffect(() => {
+        onRequest(offset, true);
+       // eslint-disable-next-line 
+    }, [])
+
+    const onRequest = (offset, initial) => {
+        initial ? setNewItemLoading() : setNewItemLoading(true);
+        getAllCharacters(offset).then(onCharListLoaded)
     }
     
-    marvelService = new MarvelServices();
-
-    componentDidMount() {
-        this.onRequest();
-        window.addEventListener('scroll', this.handleScroll);
-        
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('scroll', this.handleScroll);
-    }
-
-    handleScroll = () => {
-        const { loadingmore } = this.state;
-
-        // Проверяем, достиг ли пользователь нижней границы экрана
-        if (loadingmore) return;
-
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-            this.onRequest(this.state.offset);
+    const onCharListLoaded = (newCharList) => {
+        let ended = false;
+        if (newCharList.length < 9) {
+            ended = true;
         }
+
+        setCharList(charList => [...charList, ...newCharList]);
+        setNewItemLoading(newItemLoading => false);
+        setOffset(offset => offset + 9);
+        setCharEnded(charEnded => ended);
     }
 
-    onLoadMore = () => {
-        this.setState({
-            loadingmore: true
-        })
+    const itemRefs = useRef([]);
+
+    const focusOnItem = (id) => {
+        itemRefs.current.forEach(item => item.classList.remove('char__item_selected'));
+        itemRefs.current[id].classList.add('char__item_selected');
+        itemRefs.current[id].focus();
     }
 
-
-
-    onRequest = (offset) => {
-        this.onLoadMore();
-        this.marvelService.getALLCharacters(offset)
-            .then(this.onCharListLoaded)
-            .catch(this.onError)
-
-    }
-
-    onCharListLoaded = (newcharList) => {
-        this.setState(({charList, offset}) => {
-
-            let ended = false;
-            if(newcharList.length < 9) {
-                ended = true;
-            }
-
-            return {
-                charList: [...charList, ...newcharList],
-                loading: false,
-                loadingmore: false,
-                offset: offset + 9,
-                charEnded: ended,
-            }
-        })
-    }
-
-    onError = () => {
-        this.setState({
-            error: true,
-            loading: false
-        })
-    }
-
-    // Этот метод создан для оптимизации, 
-    // чтобы не помещать такую конструкцию в метод render
-    renderItems(arr) {
-        const items =  arr.map((item) => {
+    function renderItems(arr) {
+        const items =  arr.map((item, i) => {
             let imgStyle = {'objectFit' : 'cover'};
             if (item.thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
                 imgStyle = {'objectFit' : 'unset'};
@@ -92,17 +54,20 @@ class CharList extends Component {
             
             return (
                 <li 
-                    tabIndex={0} // Добавляем tabIndex
-                    
                     className="char__item"
+                    tabIndex={0}
+                    ref={el => itemRefs.current[i] = el}
                     key={item.id}
-                    onClick={() => this.props.onCurrentChar(item.id)}
-                    onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                            this.props.onCurrentChar(item.id);
-                        }
+                    onClick={() => {
+                        props.onCharSelected(item.id);
+                        focusOnItem(i);
                     }}
-                    >
+                    onKeyPress={(e) => {
+                        if (e.key === ' ' || e.key === "Enter") {
+                            props.onCharSelected(item.id);
+                            focusOnItem(i);
+                        }
+                    }}>
                         <img src={item.thumbnail} alt={item.name} style={imgStyle}/>
                         <div className="char__name">{item.name}</div>
                 </li>
@@ -110,40 +75,35 @@ class CharList extends Component {
         });
         // А эта конструкция вынесена для центровки спиннера/ошибки
         return (
-            <ul className="char__grid" >
+            <ul className="char__grid">
                 {items}
             </ul>
         )
     }
+    
+    const items = renderItems(charList);
 
-    render() {
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading && !newItemLoading ? <Spinner/> : null;
 
-        const {charList, loading, error, loadingmore, offset, charEnded} = this.state;
-        
-        const items = this.renderItems(charList);
-
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? items : null;
-
-        return (
-            <div className="char__list">
-                {errorMessage}
-                {spinner}
-                {content}
-                <button 
-                    className="button button__main button__long"
-                    disabled={loadingmore}
-                    style={{"display": charEnded ? "none" : "block"}}
-                    onClick={() => this.onRequest(offset)}>
-                    <div className="inner">load more</div>
-                </button>
-            </div>
-        )
-    }
+    return (
+        <div className="char__list">
+            {errorMessage}
+            {spinner}
+            {items}
+            <button 
+                className="button button__main button__long"
+                disabled={newItemLoading}
+                style={{'display': charEnded ? 'none' : 'block'}}
+                onClick={() => onRequest(offset)}>
+                <div className="inner">load more</div>
+            </button>
+        </div>
+    )
 }
 
 CharList.propTypes = {
-    onCurrentChar: PropTypes.func.isRequired
+    onCharSelected: PropTypes.func.isRequired
 }
+
 export default CharList;
